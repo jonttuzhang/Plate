@@ -1,0 +1,42 @@
+// English is the source of truth for translation keys; fi.ts must have exactly the same shape.
+// Use `{name}` placeholders for interpolation.
+export const en = {
+  common: {
+    appName: 'Plate',
+    done: 'Done',
+    cancel: 'Cancel',
+    back: 'Back',
+    comingSoon: 'Coming soon',
+  },
+  home: {
+    today: 'Today',
+    yesterday: 'Yesterday',
+    kcal: 'kcal',
+    protein: 'Protein',
+    carbs: 'Carbs',
+    fat: 'Fat',
+    ofTarget: 'of {target}',
+    remaining: '{n} left',
+    over: '{n} over',
+    noWorkout: 'No workout today',
+    noFood: 'Nothing logged yet',
+    logFood: 'Log food',
+    startWorkout: 'Start workout',
+    settings: 'Settings',
+  },
+  settings: {
+    title: 'Settings',
+    language: 'Language',
+    languageFi: 'Suomi',
+    languageEn: 'English',
+    diagnostics: 'Diagnostics',
+    localDb: 'Local database',
+    localDbOk: 'Ready (schema v{version})',
+    supabase: 'Supabase',
+    supabaseMissing: 'Not configured (.env missing)',
+    supabaseChecking: 'Checking…',
+    supabaseOk: 'Reachable',
+    supabaseOffline: 'Not reachable (offline?)',
+    version: 'Version',
+  },
+} as const;

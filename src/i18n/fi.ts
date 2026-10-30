@@ -1,0 +1,42 @@
+import type { Translations } from './types';
+
+export const fi: Translations = {
+  common: {
+    appName: 'Plate',
+    done: 'Valmis',
+    cancel: 'Peruuta',
+    back: 'Takaisin',
+    comingSoon: 'Tulossa pian',
+  },
+  home: {
+    today: 'Tänään',
+    yesterday: 'Eilen',
+    kcal: 'kcal',
+    protein: 'Proteiini',
+    carbs: 'Hiilihydraatit',
+    fat: 'Rasva',
+    ofTarget: '/ {target}',
+    remaining: '{n} jäljellä',
+    over: '{n} yli',
+    noWorkout: 'Ei treeniä tänään',
+    noFood: 'Ei vielä kirjauksia',
+    logFood: 'Kirjaa ruoka',
+    startWorkout: 'Aloita treeni',
+    settings: 'Asetukset',
+  },
+  settings: {
+    title: 'Asetukset',
+    language: 'Kieli',
+    languageFi: 'Suomi',
+    languageEn: 'English',
+    diagnostics: 'Diagnostiikka',
+    localDb: 'Paikallinen tietokanta',
+    localDbOk: 'Valmis (skeema v{version})',
+    supabase: 'Supabase',
+    supabaseMissing: 'Ei määritetty (.env puuttuu)',
+    supabaseChecking: 'Tarkistetaan…',
+    supabaseOk: 'Yhteys toimii',
+    supabaseOffline: 'Ei yhteyttä (offline?)',
+    version: 'Versio',
+  },
+};

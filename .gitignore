@@ -39,3 +39,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# env (only .env.example is committed)
+.env
+.env.*
+!.env.example
+
+# supabase cli
+supabase/.temp/
+supabase/.branches/
