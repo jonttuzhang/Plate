@@ -1,6 +1,10 @@
 import { getLocales } from 'expo-localization';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
+import { getDb } from '@/db/database';
+import { useProfile } from '@/db/hooks';
+import { updateRow } from '@/db/write';
+
 import { en } from './en';
 import { fi } from './fi';
 import type { Language, TKey, Translations } from './types';
@@ -31,11 +35,21 @@ type I18n = {
 
 const I18nContext = createContext<I18n | null>(null);
 
+/** Language = the saved profile language, else the one picked before sign-in, else the device language. */
 export function I18nProvider({ children }: { children: ReactNode }) {
-  // Device language for now; from M2 the saved profile language overrides it.
-  const [lang, setLang] = useState<Language>(deviceLanguage);
+  const profile = useProfile();
+  const [picked, setPicked] = useState<Language>(deviceLanguage);
+  const lang = profile?.language ?? picked;
+
+  const setLang = useCallback(
+    (next: Language) => {
+      setPicked(next);
+      if (profile && profile.language !== next) void updateRow(getDb(), 'profiles', profile.id, { language: next });
+    },
+    [profile],
+  );
   const t = useCallback<I18n['t']>((key, params) => translate(lang, key, params), [lang]);
-  const value = useMemo(() => ({ lang, setLang, t }), [lang, t]);
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

@@ -29,7 +29,13 @@
       "output": "single",
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-router", "expo-sqlite", "expo-localization"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-localization",
+      "expo-sharing",
+      "expo-asset"
+    ],
     "experiments": {
       "typedRoutes": true
     }

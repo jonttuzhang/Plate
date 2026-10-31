@@ -10,17 +10,21 @@ type Props = {
   value?: ReactNode;
   onPress?: () => void;
   last?: boolean;
+  danger?: boolean;
 };
 
 /** iOS settings-style row: label on the left, value or accessory on the right. */
-export function ListRow({ label, value, onPress, last }: Props) {
+export function ListRow({ label, value, onPress, last, danger }: Props) {
   return (
     <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
       disabled={!onPress}
       onPress={onPress}
       style={({ pressed }) => [styles.row, !last && styles.separator, pressed && { opacity: 0.6 }]}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} color={danger ? 'danger' : 'text'}>
+        {label}
+      </Text>
       <View style={styles.value}>{typeof value === 'string' ? <Text color="textSecondary">{value}</Text> : value}</View>
     </Pressable>
   );

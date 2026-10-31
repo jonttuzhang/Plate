@@ -95,6 +95,14 @@ export const migrations: string[] = [
     last_pulled_at TEXT
   );
   `,
+
+  // 2: local-only key/value metadata (e.g. which user owns this local database)
+  `
+  CREATE TABLE app_meta (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT
+  );
+  `,
 ];
 
 /** Applies pending migrations, each in its own transaction. Returns the resulting schema version. */

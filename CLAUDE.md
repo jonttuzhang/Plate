@@ -64,7 +64,7 @@ npm run check        # both; run before every commit
 
 ## Milestones
 1. ✅ Setup, navigation, tokens, i18n, SQLite schema, Supabase project + migrations + RLS
-2. Auth (email OTP), onboarding, sign out, delete account, data export
+2. ✅ Auth (email OTP), onboarding, sign out, delete account, data export
 3. Workout logging (offline)
 4. Food logging: search, Fineli seed, barcode, favorites
 5. Home + training-day targets
@@ -73,6 +73,16 @@ npm run check        # both; run before every commit
 8. AI text food logging (Edge Function + Claude)
 9. CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish
+
+## Auth
+- Email 6-digit OTP (`signInWithOtp` + `verifyOtp` type `email`). The dashboard email templates
+  (Magic link + Confirm signup) must contain `{{ .Token }}`.
+- Routing gate in `src/app/_layout.tsx`: signed out → `sign-in`, no onboarded profile → `onboarding`, else the app.
+- `profiles.id` = the user's id (one profile row per user on every device).
+- `__DEV__` only: "continue without account" on the sign-in screen (fixed local user id, no sync/AI).
+  Used for browser checks in the cloud container, where supabase.co is not reachable.
+- Edge Functions are deployed with `verify_jwt = false` and authorize in code (`_shared/http.ts`),
+  because the platform JWT check does not understand the new publishable/secret keys.
 
 ## Supabase
 - Project: `Plate` (ref `sxuedbjvrsbbpjlmquzi`, eu-north-1).
