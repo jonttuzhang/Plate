@@ -29,5 +29,12 @@ Conventions, architecture and data rules: see [CLAUDE.md](CLAUDE.md).
 SQL migrations live in `supabase/migrations/` and are applied to the hosted project
 (via the Supabase MCP server, or by pasting into Dashboard → SQL Editor in filename order).
 
+## Food data
+- **Fineli** (Finnish Institute for Health and Welfare, THL), CC BY 4.0. The bundled seed is Release 18,
+  taken from an unmodified mirror of the official package because fineli.fi blocks scripted downloads.
+  To update to the newest release: download the "basic package" zip from https://fineli.fi/fineli/en/avoin-data,
+  extract it, then run `node scripts/build-fineli.mjs <extracted-folder> "Release NN"`. The app re-seeds automatically.
+- **Open Food Facts** (ODbL) for barcode lookups.
+
 ## Privacy
 Basic logging is free. No data is sold, no ad tracking.

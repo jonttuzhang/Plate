@@ -103,6 +103,22 @@ export const migrations: string[] = [
     value TEXT
   );
   `,
+
+  // 3: read-only Fineli catalog (seeded from src/data/fineli.json, never synced)
+  `
+  CREATE TABLE fineli_foods (
+    id INTEGER PRIMARY KEY NOT NULL,
+    name_fi TEXT NOT NULL,
+    name_en TEXT NOT NULL,
+    search TEXT NOT NULL,
+    kcal REAL NOT NULL,
+    protein REAL NOT NULL,
+    carbs REAL NOT NULL,
+    fat REAL NOT NULL,
+    serving_g REAL,
+    serving_unit TEXT
+  );
+  `,
 ];
 
 /** Applies pending migrations, each in its own transaction. Returns the resulting schema version. */

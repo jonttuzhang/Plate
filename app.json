@@ -34,7 +34,13 @@
       "expo-sqlite",
       "expo-localization",
       "expo-sharing",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Plate uses the camera to scan food barcodes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

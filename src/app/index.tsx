@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getDb } from '@/db/database';
@@ -41,8 +41,6 @@ export default function Home() {
     day: 'numeric',
     month: 'long',
   }).format(parseLocalDate(today));
-
-  const comingSoon = () => Alert.alert(t('common.comingSoon'));
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -96,7 +94,7 @@ export default function Home() {
       </ScrollView>
 
       <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
-        <Button label={t('home.logFood')} onPress={comingSoon} style={styles.action} />
+        <Button label={t('home.logFood')} onPress={() => router.push('/food/add')} style={styles.action} />
         <Button label={active ? t('workout.continue') : t('home.startWorkout')} variant="secondary" onPress={openWorkout} style={styles.action} />
       </View>
     </View>

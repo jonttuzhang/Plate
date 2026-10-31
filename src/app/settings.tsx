@@ -199,6 +199,10 @@ export default function Settings() {
             />
           </Section>
 
+          <Section title={t('settings.about')}>
+            <ListRow label={t('settings.attributions')} onPress={() => router.push('/about')} value={<Chevron />} last />
+          </Section>
+
           <Section title={t('settings.diagnostics')}>
             <ListRow label={t('settings.localDb')} value={t('settings.localDbOk', { version: getSchemaVersion() })} />
             <ListRow label={t('settings.supabase')} value={serverLabel} />

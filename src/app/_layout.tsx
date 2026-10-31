@@ -67,6 +67,12 @@ function Navigator() {
         <Stack.Screen name="workout/exercise" options={{ presentation: 'modal' }} />
         <Stack.Screen name="history/index" options={{ presentation: 'modal' }} />
         <Stack.Screen name="history/[id]" />
+        <Stack.Screen name="food/add" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="food/portion" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="food/scan" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="food/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="food/describe" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="about" options={{ presentation: 'modal' }} />
       </Stack.Protected>
     </Stack>
   );
