@@ -206,8 +206,8 @@ export async function deleteWorkout(db: SqlDb, workoutId: string): Promise<void>
 export type WorkoutSummary = Workout & { exercises: number; sets: number; volume_kg: number };
 
 const summarySql = `
-  SELECT w.*, COUNT(DISTINCT s.exercise_id) AS exercises, COUNT(s.id) AS sets,
-         COALESCE(SUM(s.weight_kg * s.reps), 0) AS volume_kg
+  SELECT w.*, COUNT(DISTINCT s.exercise_id) AS exercises, COALESCE(SUM(CASE WHEN s.is_warmup = 0 THEN 1 ELSE 0 END), 0) AS sets,
+         COALESCE(SUM(CASE WHEN s.is_warmup = 0 THEN s.weight_kg * s.reps ELSE 0 END), 0) AS volume_kg
   FROM workouts w LEFT JOIN workout_sets s
     ON s.workout_id = w.id AND s.deleted_at IS NULL AND s.completed_at IS NOT NULL
   WHERE w.deleted_at IS NULL`;

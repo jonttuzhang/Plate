@@ -62,7 +62,7 @@ export default function Onboarding() {
   return (
     <Screen>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <Text variant="largeTitle">{t('onboarding.title')}</Text>
           <Text color="textSecondary">{t('onboarding.subtitle')}</Text>
 

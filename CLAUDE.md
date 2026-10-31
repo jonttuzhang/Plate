@@ -57,6 +57,14 @@ npm run check        # both; run before every commit
 - Metric by default (kg, 2.5 kg increment, configurable).
 - No social features, no gamification, no ads, no tracking.
 
+## UI conventions
+- Numeric inputs: `inputAccessoryViewID={KEYBOARD_DONE_ID}` (iOS number pads have no return key) and
+  `keyboardDismissMode="on-drag"` on scroll views.
+- Plurals: write `'1 set|{n} sets'` and pass `{ n }`; `translate` picks the form.
+- Use `confirmAsync` / `chooseAsync` / `notify` (src/lib/dialogs.ts), not `Alert` directly (web has no Alert).
+- Browser checks: Playwright against `npx expo start --web` in dev offline mode (CI=1 disables Metro's
+  file watching, so restart the server after edits).
+
 ## Code style
 - TypeScript strict. Simple, readable code, few dependencies; explain non-obvious decisions in a short comment.
 - Pure logic goes in `src/domain` / `src/sync` / `src/import` with tests; screens stay thin.
@@ -72,7 +80,7 @@ npm run check        # both; run before every commit
 7. ✅ Progression suggestion
 8. ✅ AI text food logging (Edge Function + Claude)
 9. ✅ CSV import (Hevy, Strong, MyFitnessPal)
-10. Polish
+10. ✅ Polish
 
 ## Sync (`src/sync`)
 - `engine.ts`: pure push/pull over `RemoteStore`; tested with sql.js + `FakeRemote` (mirrors the server trigger).

@@ -24,3 +24,12 @@ describe('i18n', () => {
     expect(translate('fi', 'home.remaining', { n: 420 })).toBe('420 jäljellä');
   });
 });
+
+describe('plurals', () => {
+  it('picks the singular form only for n = 1', () => {
+    expect(translate('en', 'history.sets', { n: 1 })).toBe('1 set');
+    expect(translate('en', 'history.sets', { n: 0 })).toBe('0 sets');
+    expect(translate('fi', 'history.sets', { n: 3 })).toBe('3 sarjaa');
+    expect(translate('fi', 'history.exercises', { n: 1 })).toBe('1 liike');
+  });
+});

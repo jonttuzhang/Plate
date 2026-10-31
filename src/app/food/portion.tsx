@@ -21,6 +21,7 @@ import { Button } from '@/ui/Button';
 import { Chip, MealChips } from '@/ui/MealChips';
 import { Screen } from '@/ui/Screen';
 import { ScreenHeader } from '@/ui/ScreenHeader';
+import { KEYBOARD_DONE_ID } from '@/ui/KeyboardDone';
 import { Text } from '@/ui/Text';
 
 type Subject =
@@ -141,7 +142,7 @@ export default function Portion() {
     <Screen modal>
       <ScreenHeader title="" left={{ label: t('common.cancel'), onPress: () => router.back() }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <View style={styles.titleRow}>
             <Text variant="title" style={styles.flex}>
               {name}
@@ -166,6 +167,7 @@ export default function Portion() {
                 if (v !== null) setGrams(v);
               }}
               keyboardType="decimal-pad"
+              inputAccessoryViewID={KEYBOARD_DONE_ID}
               selectTextOnFocus
               style={styles.amountInput}
             />

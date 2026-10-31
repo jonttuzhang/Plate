@@ -179,7 +179,7 @@ function WorkoutCard({ workout }: { workout: WorkoutSummary }) {
         <View style={styles.flex}>
           <Text variant="headline">{inProgress ? t('home.inProgress') : t('workout.title')}</Text>
           <Text variant="footnote" color="textSecondary">
-            {t('home.workoutSummary', { exercises: workout.exercises, sets: workout.sets, min: minutes })}
+            {[t('history.exercises', { n: workout.exercises }), t('history.sets', { n: workout.sets }), t('history.minutes', { n: minutes })].join(' · ')}
           </Text>
         </View>
         <Text color="textTertiary">›</Text>
@@ -234,7 +234,8 @@ function MealSection({ meal, date, entries, canRepeat }: { meal: Meal; date: str
           <View style={styles.flex}>
             <Text numberOfLines={1}>{e.name}</Text>
             <Text variant="footnote" color="textSecondary" numeric>
-              {e.grams > 0 ? `${formatNumber(e.grams, lang, 0)} g · ` : ''}P {formatNumber(e.protein_g, lang)}
+              {e.grams > 0 ? `${formatNumber(e.grams, lang, 0)} g · ` : ''}
+              {t('common.proteinShort')} {formatNumber(e.protein_g, lang)}
             </Text>
           </View>
           <Text color="textSecondary" numeric>

@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n';
 import { formatNumber, parseDecimal } from '@/lib/format';
 import { colors, space, tap, type as typeScale } from '@/theme/tokens';
 
+import { KEYBOARD_DONE_ID } from './KeyboardDone';
 import { Text } from './Text';
 
 type Props = {
@@ -44,6 +45,7 @@ export function NumberField({ label, value, suffix, placeholder, decimals = 1, o
         keyboardType={decimals > 0 ? 'decimal-pad' : 'number-pad'}
         selectTextOnFocus
         returnKeyType="done"
+        inputAccessoryViewID={KEYBOARD_DONE_ID}
         onFocus={() => (focused.current = true)}
         onChangeText={(next) => {
           setText(next);

@@ -110,7 +110,7 @@ export default function Settings() {
     <Screen modal>
       <ScreenHeader title={t('settings.title')} right={{ label: t('common.done'), onPress: () => router.back() }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <Section title={t('settings.targets')}>
             <IntField label={t('settings.kcal')} value={profile.kcal_target} suffix={t('common.kcal')} onCommit={(v) => v && save({ kcal_target: v })} />
             <IntField label={t('settings.protein')} value={profile.protein_target_g} suffix={t('common.g')} onCommit={(v) => v && save({ protein_target_g: v })} />

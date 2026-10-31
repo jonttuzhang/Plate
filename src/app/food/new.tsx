@@ -50,7 +50,7 @@ export default function NewFood() {
         right={{ label: t('common.save'), onPress: save, disabled: !valid }}
       />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <TextInput
             value={name}
             onChangeText={setName}

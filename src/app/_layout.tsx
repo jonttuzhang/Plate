@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -6,10 +6,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { initDb } from '@/db/database';
 import { useProfile } from '@/db/hooks';
-import { I18nProvider } from '@/i18n';
+import { deviceLanguage, I18nProvider, translate } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { sync, useSyncTriggers } from '@/sync';
 import { colors, space } from '@/theme/tokens';
+import { KeyboardDoneBar } from '@/ui/KeyboardDone';
+import { Button } from '@/ui/Button';
 import { Text } from '@/ui/Text';
 
 export default function RootLayout() {
@@ -30,6 +32,7 @@ export default function RootLayout() {
         <AuthProvider>
           <I18nProvider>
             <Navigator />
+            <KeyboardDoneBar />
           </I18nProvider>
         </AuthProvider>
       ) : (
@@ -92,6 +95,18 @@ function Navigator() {
   );
 }
 
+/** Shown by Expo Router if a screen crashes. Data is safe in SQLite; retrying re-renders. */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  const lang = deviceLanguage();
+  return (
+    <View style={[styles.center, styles.gap]}>
+      <Text variant="title">{translate(lang, 'common.error')}</Text>
+      <Text color="textSecondary">{error.message}</Text>
+      <Button label={translate(lang, 'common.tryAgain')} onPress={retry} />
+    </View>
+  );
+}
+
 function Splash({ error }: { error?: string | null }) {
   return (
     <View style={styles.center}>
@@ -102,4 +117,5 @@ function Splash({ error }: { error?: string | null }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', padding: space.xl },
+  gap: { gap: space.lg },
 });

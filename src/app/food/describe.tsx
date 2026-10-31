@@ -20,6 +20,7 @@ import { Button } from '@/ui/Button';
 import { MealChips } from '@/ui/MealChips';
 import { Screen } from '@/ui/Screen';
 import { ScreenHeader } from '@/ui/ScreenHeader';
+import { KEYBOARD_DONE_ID } from '@/ui/KeyboardDone';
 import { Text } from '@/ui/Text';
 
 import { scaleItem, type AiFoodItem } from '../../../supabase/functions/_shared/food-items';
@@ -93,7 +94,7 @@ export default function Describe() {
     <Screen modal>
       <ScreenHeader title={t('describe.title')} left={{ label: t('common.cancel'), onPress: () => router.back() }} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <TextInput
             value={text}
             onChangeText={(next) => {
@@ -104,6 +105,7 @@ export default function Describe() {
             placeholderTextColor={colors.textTertiary}
             multiline
             autoFocus
+            inputAccessoryViewID={KEYBOARD_DONE_ID}
             maxLength={500}
             style={styles.input}
           />
@@ -131,7 +133,7 @@ export default function Describe() {
                 {t('describe.total')}
               </Text>
               <Text variant="headline" numeric>
-                {Math.round(totals.kcal)} {t('common.kcal')} · P {formatNumber(totals.protein_g, lang)}
+                {Math.round(totals.kcal)} {t('common.kcal')} · {t('common.proteinShort')} {formatNumber(totals.protein_g, lang)}
               </Text>
             </View>
           ) : null}
@@ -171,12 +173,14 @@ function ItemRow({ item, onChange, onRemove }: { item: AiFoodItem; onChange: (i:
             if (g !== null && g > 0) onChange(scaleItem(item, g));
           }}
           keyboardType="decimal-pad"
+          inputAccessoryViewID={KEYBOARD_DONE_ID}
           selectTextOnFocus
           style={styles.grams}
         />
         <Text color="textSecondary">g</Text>
         <Text variant="footnote" color="textSecondary" numeric style={styles.macros}>
-          {item.kcal} {t('common.kcal')} · P {formatNumber(item.protein_g, lang)} · C {formatNumber(item.carbs_g, lang)} · F {formatNumber(item.fat_g, lang)}
+          {item.kcal} {t('common.kcal')} · {t('common.proteinShort')} {formatNumber(item.protein_g, lang)} · {t('common.carbsShort')}{' '}
+          {formatNumber(item.carbs_g, lang)} · {t('common.fatShort')} {formatNumber(item.fat_g, lang)}
         </Text>
       </View>
     </View>

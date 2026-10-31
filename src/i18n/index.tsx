@@ -21,6 +21,11 @@ export function translate(lang: Language, key: TKey, params?: Record<string, str
   let node: unknown = dictionaries[lang];
   for (const part of key.split('.')) node = (node as Record<string, unknown>)[part];
   let text = typeof node === 'string' ? node : key;
+  // "1 set|{n} sets": the first form when n is 1, the second otherwise.
+  if (text.includes('|') && params && typeof params.n === 'number') {
+    const [one, other] = text.split('|') as [string, string];
+    text = params.n === 1 ? one : other;
+  }
   if (params) {
     for (const [name, value] of Object.entries(params)) text = text.replaceAll(`{${name}}`, String(value));
   }

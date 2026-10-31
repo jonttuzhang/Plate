@@ -52,7 +52,7 @@ export default function ExerciseSettings() {
         left={{ label: t('common.cancel'), onPress: () => router.back() }}
         right={{ label: t('common.save'), onPress: save, disabled: !valid }}
       />
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <Section title={t('workout.repRange')} footer={t('workout.progressionFooter')}>
           <NumberField label={t('workout.repMin')} value={repMin} decimals={0} onChange={setRepMin} />
           <NumberField label={t('workout.repMax')} value={repMax} decimals={0} onChange={setRepMax} />

@@ -33,6 +33,7 @@ import { colors, radius, space, tap, type as typeScale } from '@/theme/tokens';
 import { Button } from '@/ui/Button';
 import { ProgressBar } from '@/ui/ProgressBar';
 import { Screen } from '@/ui/Screen';
+import { KEYBOARD_DONE_ID } from '@/ui/KeyboardDone';
 import { Text } from '@/ui/Text';
 
 type Editing = { setId: string; field: 'weight' | 'reps' } | null;
@@ -87,7 +88,7 @@ export default function WorkoutScreen() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         {blocks.length === 0 ? (
           <Text color="textSecondary" style={styles.empty}>
             {t('workout.empty')}
@@ -284,6 +285,7 @@ function SetEditor({ set, field, profile, onField, onClose }: { set: WorkoutSet;
             onEndEditing={commitText}
             onSubmitEditing={commitText}
             keyboardType={isWeight ? 'decimal-pad' : 'number-pad'}
+            inputAccessoryViewID={KEYBOARD_DONE_ID}
             selectTextOnFocus
             style={styles.valueInput}
           />
