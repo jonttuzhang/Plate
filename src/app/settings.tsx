@@ -192,7 +192,8 @@ export default function Settings() {
           </Section>
 
           <Section title={t('settings.data')}>
-            <ListRow label={t('settings.history')} onPress={() => router.push('/history')} value={<Chevron />} last />
+            <ListRow label={t('settings.history')} onPress={() => router.push('/history')} value={<Chevron />} />
+            <ListRow label={t('settings.importData')} onPress={() => router.push('/import')} value={<Chevron />} last />
           </Section>
 
           <Section title={t('settings.exportData')}>

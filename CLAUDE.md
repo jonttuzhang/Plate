@@ -71,7 +71,7 @@ npm run check        # both; run before every commit
 6. ✅ Sync engine
 7. ✅ Progression suggestion
 8. ✅ AI text food logging (Edge Function + Claude)
-9. CSV import (Hevy, Strong, MyFitnessPal)
+9. ✅ CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish
 
 ## Sync (`src/sync`)

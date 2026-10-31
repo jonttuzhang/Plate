@@ -234,7 +234,7 @@ function MealSection({ meal, date, entries, canRepeat }: { meal: Meal; date: str
           <View style={styles.flex}>
             <Text numberOfLines={1}>{e.name}</Text>
             <Text variant="footnote" color="textSecondary" numeric>
-              {formatNumber(e.grams, lang, 0)} g · P {formatNumber(e.protein_g, lang)}
+              {e.grams > 0 ? `${formatNumber(e.grams, lang, 0)} g · ` : ''}P {formatNumber(e.protein_g, lang)}
             </Text>
           </View>
           <Text color="textSecondary" numeric>

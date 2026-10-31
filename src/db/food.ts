@@ -107,6 +107,8 @@ export async function logItem(db: SqlDb, item: { name: string; grams: number } &
 
 /** Changing the portion scales the snapshot, so it stays correct even if the food was edited since. */
 export async function updateEntry(db: SqlDb, entry: FoodEntry, grams: number, meal: Meal): Promise<void> {
+  // Imported meal totals have no amount (0 g): only the meal can change.
+  if (entry.grams === 0) return updateRow(db, 'food_entries', entry.id, { meal });
   const f = entry.grams > 0 ? grams / entry.grams : 0;
   const r1 = (n: number) => Math.round(n * f * 10) / 10;
   await updateRow(db, 'food_entries', entry.id, {

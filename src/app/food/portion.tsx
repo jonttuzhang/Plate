@@ -82,7 +82,9 @@ export default function Portion() {
   const name = subject.kind === 'entry' ? subject.entry.name : subject.kind === 'food' ? subject.food.name : subject.name;
   const macros: MacroTotals =
     subject.kind === 'entry'
-      ? scale(subject.entry, grams)
+      ? subject.entry.grams === 0
+        ? subject.entry
+        : scale(subject.entry, grams)
       : macrosFor(subject.kind === 'food' ? subject.food : subject.per100, grams);
   const serving = subject.kind === 'food' ? subject.food.serving_g : subject.kind === 'fineli' ? subject.servingG : null;
   const unitCode = subject.kind === 'entry' ? null : subject.servingUnit;
@@ -103,8 +105,10 @@ export default function Portion() {
     return null;
   };
 
+  const fixedAmount = subject.kind === 'entry' && subject.entry.grams === 0;
+
   const save = async () => {
-    if (grams <= 0 || saving) return;
+    if ((grams <= 0 && !fixedAmount) || saving) return;
     setSaving(true);
     const db = getDb();
     if (subject.kind === 'entry') {
@@ -149,6 +153,9 @@ export default function Portion() {
             ) : null}
           </View>
 
+          {/* Imported meal totals have no amount (0 g): only meal and delete can change. */}
+          {subject.kind === 'entry' && subject.entry.grams === 0 ? null : (
+          <>
           <View style={styles.amount}>
             <TextInput
               accessibilityLabel={t('food.grams')}
@@ -174,6 +181,8 @@ export default function Portion() {
               return <Chip key={g} label={label} selected={g === grams} onPress={() => set(g)} />;
             })}
           </View>
+          </>
+          )}
 
           <View style={styles.macros}>
             <Macro value={macros.kcal} label={t('common.kcal')} decimals={0} />
@@ -187,7 +196,7 @@ export default function Portion() {
           <MealChips value={meal} onChange={setMeal} />
           <View style={styles.buttons}>
             {subject.kind === 'entry' ? <Button label={t('common.delete')} variant="secondary" onPress={remove} style={styles.flex} /> : null}
-            <Button label={subject.kind === 'entry' ? t('common.save') : t('food.add')} onPress={save} disabled={grams <= 0 || saving} style={styles.flex} />
+            <Button label={subject.kind === 'entry' ? t('common.save') : t('food.add')} onPress={save} disabled={(grams <= 0 && !fixedAmount) || saving} style={styles.flex} />
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -86,6 +86,7 @@ function Navigator() {
         <Stack.Screen name="food/new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="food/describe" options={{ presentation: 'modal' }} />
         <Stack.Screen name="about" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="import" options={{ presentation: 'modal' }} />
       </Stack.Protected>
     </Stack>
   );
