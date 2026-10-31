@@ -16,8 +16,10 @@ import { deleteAccount } from '@/lib/account';
 import { useAuth } from '@/lib/auth';
 import { confirmAsync, notify } from '@/lib/dialogs';
 import { localDate } from '@/lib/dates';
+import { localeOf } from '@/lib/format';
 import { shareTextFile } from '@/lib/share';
 import { isSupabaseConfigured, pingSupabase } from '@/lib/supabase';
+import { sync, useSyncStatus } from '@/sync';
 import { colors, space } from '@/theme/tokens';
 import { ListRow } from '@/ui/ListRow';
 import { NumberField } from '@/ui/NumberField';
@@ -35,6 +37,7 @@ export default function Settings() {
   const profile = useProfile();
   const [server, setServer] = useState<Reachability>(isSupabaseConfigured ? 'checking' : 'missing');
   const [busy, setBusy] = useState(false);
+  const syncStatus = useSyncStatus();
 
   useEffect(() => {
     if (isSupabaseConfigured) pingSupabase().then((ok) => setServer(ok ? 'ok' : 'offline'));
@@ -47,6 +50,7 @@ export default function Settings() {
   const wUnit = t(weightUnit(unit) === 'kg' ? 'common.kg' : 'common.lb');
 
   const onSignOut = async () => {
+    await sync.nowWithin(8000); // push what we can before the local data is removed
     const unsynced = await countUnsynced(getDb());
     const message = unsynced > 0 && !(state.status === 'signedIn' && state.devOffline)
       ? t('settings.signOutUnsynced', { n: unsynced })
@@ -81,6 +85,19 @@ export default function Settings() {
     // Switching units resets the increment to that unit's natural step (2.5 kg / 5 lb).
     void save({ unit_system: next, weight_increment_kg: defaultIncrementKg(next) });
   };
+
+  const syncLabel =
+    syncStatus.state === 'disabled'
+      ? t('settings.syncDisabled')
+      : syncStatus.state === 'syncing'
+        ? t('settings.syncing')
+        : syncStatus.state === 'offline'
+          ? t('settings.syncOffline')
+          : syncStatus.state === 'error'
+            ? t('settings.syncError')
+            : syncStatus.lastSyncedAt
+              ? t('settings.syncedAt', { time: new Intl.DateTimeFormat(localeOf(lang), { hour: '2-digit', minute: '2-digit' }).format(new Date(syncStatus.lastSyncedAt)) })
+              : t('settings.syncNever');
 
   const serverLabel = {
     missing: t('settings.supabaseMissing'),
@@ -189,6 +206,7 @@ export default function Settings() {
               label={t('settings.signedInAs')}
               value={state.status === 'signedIn' ? (state.devOffline ? t('settings.devOffline') : (state.email ?? '')) : ''}
             />
+            <ListRow label={t('settings.sync')} value={syncLabel} onPress={syncStatus.state === 'disabled' ? undefined : () => void sync.now()} />
             <ListRow label={t('settings.signOut')} onPress={onSignOut} />
             <ListRow
               label={t('settings.deleteAccount')}

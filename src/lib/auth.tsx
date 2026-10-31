@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { getDb } from '@/db/database';
 import { claimLocalData, wipeUserData } from '@/db/local';
+import { sync } from '@/sync';
 
 import { supabase } from './supabase';
 
@@ -65,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await AsyncStorage.removeItem(DEV_OFFLINE_KEY);
+    await sync.stop(); // a pull still in flight must not write into the wiped database
     await wipeUserData(getDb());
     // signOut also clears the stored session when offline; the server-side token then simply expires.
     await supabase?.auth.signOut({ scope: 'local' }).catch(() => undefined);

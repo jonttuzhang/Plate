@@ -68,11 +68,19 @@ npm run check        # both; run before every commit
 3. ✅ Workout logging (offline)
 4. ✅ Food logging: search, Fineli seed, barcode, favorites
 5. ✅ Home + training-day targets
-6. Sync engine
+6. ✅ Sync engine
 7. Progression suggestion
 8. AI text food logging (Edge Function + Claude)
 9. CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish
+
+## Sync (`src/sync`)
+- `engine.ts`: pure push/pull over `RemoteStore`; tested with sql.js + `FakeRemote` (mirrors the server trigger).
+  Push dirty rows (parents first) → rows the server skipped as stale are replaced by the server copy.
+  Pull by `server_updated_at` cursor with a 60 s overlap; apply only if new or strictly newer (LWW).
+- `index.ts`: triggers (sign-in, foreground, 3 s after edits, reconnect, every 60 s) + status for Settings.
+  First sign-in on a new device waits up to 10 s for a pull so existing users skip onboarding.
+- Sign-out: sync (≤8 s) → stop sync → wipe local data. Ownerless local rows are wiped on sign-in.
 
 ## Food
 - `foods` = the user's personal food list (anything logged/scanned/created). Fineli foods become a personal

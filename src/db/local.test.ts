@@ -23,4 +23,12 @@ describe('local data ownership', () => {
     expect(await countUnsynced(db)).toBe(0);
     expect(await getMeta(db, 'owner_user_id')).toBe('user-b');
   });
+
+  it('wipes rows that have no recorded owner', async () => {
+    const db = await createTestDb();
+    await migrate(db);
+    await insertRow(db, 'workouts', workout);
+    await claimLocalData(db, 'user-a');
+    expect(await countUnsynced(db)).toBe(0);
+  });
 });

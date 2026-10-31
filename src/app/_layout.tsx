@@ -8,6 +8,7 @@ import { initDb } from '@/db/database';
 import { useProfile } from '@/db/hooks';
 import { I18nProvider } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { sync, useSyncTriggers } from '@/sync';
 import { colors, space } from '@/theme/tokens';
 import { Text } from '@/ui/Text';
 
@@ -43,7 +44,19 @@ function Navigator() {
   const { state } = useAuth();
   const profile = useProfile();
   const signedIn = state.status === 'signedIn';
-  if (state.status === 'loading' || (signedIn && profile === undefined)) return <Splash />;
+  const syncUser = state.status === 'signedIn' && !state.devOffline ? state.userId : null;
+  useSyncTriggers(syncUser);
+
+  // On a new device, pull the user's data once before deciding whether onboarding is needed,
+  // so an existing user doesn't have to onboard again. Offline or slow → continue after 10 s.
+  const [pulledFor, setPulledFor] = useState<string | null>(null);
+  const needsFirstPull = syncUser !== null && profile === null && pulledFor !== syncUser;
+  useEffect(() => {
+    if (!needsFirstPull || !syncUser) return;
+    void sync.nowWithin(10_000).then(() => setPulledFor(syncUser));
+  }, [needsFirstPull, syncUser]);
+
+  if (state.status === 'loading' || (signedIn && profile === undefined) || needsFirstPull) return <Splash />;
   const onboarded = Boolean(profile?.onboarded_at);
 
   return (

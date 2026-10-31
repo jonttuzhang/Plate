@@ -29,7 +29,9 @@ export async function wipeUserData(db: SqlDb): Promise<void> {
  */
 export async function claimLocalData(db: SqlDb, userId: string): Promise<void> {
   const owner = await getMeta(db, 'owner_user_id');
-  if (owner && owner !== userId) await wipeUserData(db);
+  // Rows without a recorded owner can't be attributed to this user, so they go too.
+  const foreign = owner ? owner !== userId : (await countRows(db)) > 0;
+  if (foreign) await wipeUserData(db);
   await setMeta(db, 'owner_user_id', userId);
 }
 
@@ -37,6 +39,15 @@ export async function countUnsynced(db: SqlDb): Promise<number> {
   let total = 0;
   for (const table of tableNames) {
     const row = await db.getFirstAsync<{ n: number }>(`SELECT COUNT(*) AS n FROM ${table} WHERE dirty = 1`, []);
+    total += row?.n ?? 0;
+  }
+  return total;
+}
+
+async function countRows(db: SqlDb): Promise<number> {
+  let total = 0;
+  for (const table of tableNames) {
+    const row = await db.getFirstAsync<{ n: number }>(`SELECT COUNT(*) AS n FROM ${table}`, []);
     total += row?.n ?? 0;
   }
   return total;
