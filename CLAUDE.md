@@ -69,7 +69,7 @@ npm run check        # both; run before every commit
 4. ✅ Food logging: search, Fineli seed, barcode, favorites
 5. ✅ Home + training-day targets
 6. ✅ Sync engine
-7. Progression suggestion
+7. ✅ Progression suggestion
 8. AI text food logging (Edge Function + Claude)
 9. CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish

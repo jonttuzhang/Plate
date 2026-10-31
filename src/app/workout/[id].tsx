@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,12 +17,14 @@ import {
   getExercises,
   loadWorkoutView,
   removeExercise,
+  stepSet,
   toggleSetDone,
   updateSet,
   type ExerciseBlock,
 } from '@/db/workouts';
 import type { ExerciseInfo } from '@/domain/exercises';
-import { fromDisplayWeight, stepWeight, toDisplayWeight, weightUnit } from '@/domain/units';
+import { planSets } from '@/domain/progression';
+import { fromDisplayWeight, toDisplayWeight, weightUnit } from '@/domain/units';
 import { useI18n } from '@/i18n';
 import { chooseAsync, confirmAsync } from '@/lib/dialogs';
 import { formatDuration, formatNumber, parseDecimal } from '@/lib/format';
@@ -148,6 +150,8 @@ function ExerciseCard(props: {
   const name = exercise?.name ?? '…';
   const working = block.last.filter((s) => s.is_warmup === 0);
   const lastText = working.length ? t('workout.lastTime', { sets: working.map((s) => `${fmt(s.weight_kg)}×${s.reps}`).join(', ') }) : t('workout.firstTime');
+  // Same deterministic rule that prefilled the sets; shown so the jump in weight is never a surprise.
+  const progressed = exercise ? planSets(block.last, exercise, exercise.incrementKg ?? profile.weight_increment_kg).increased : false;
 
   const onMenu = async () => {
     const choice = await chooseAsync(name, [t('workout.settingsTitle'), t('workout.removeExercise')], t('common.cancel'), 1);
@@ -166,6 +170,11 @@ function ExerciseCard(props: {
           <Text variant="footnote" color="textSecondary">
             {lastText}
           </Text>
+          {progressed && exercise ? (
+            <Text variant="footnote" color="accent">
+              ↑ {t('workout.progressHint', { weight: fmt(Math.max(...working.map((s) => s.weight_kg))), reps: exercise.repMax })}
+            </Text>
+          ) : null}
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={t('common.edit')} hitSlop={12} onPress={onMenu} style={styles.menu}>
           <Ionicons name="ellipsis-horizontal" size={22} color={colors.textSecondary} />
@@ -235,10 +244,13 @@ function SetEditor({ set, field, profile, onField, onClose }: { set: WorkoutSet;
   const [text, setText] = useState(formatNumber(display, lang, 2));
   useEffect(() => setText(formatNumber(display, lang, 2)), [display, lang]);
 
-  const step = async (dir: 1 | -1) => {
+  // Taps run strictly one after another, each on the current stored value.
+  const queue = useRef(Promise.resolve());
+  const step = (dir: 1 | -1) => {
     void Haptics.selectionAsync().catch(() => undefined);
-    if (isWeight) await changeWeight(getDb(), set, stepWeight(set.weight_kg, profile.weight_increment_kg, dir, unit));
-    else await updateSet(getDb(), set.id, { reps: Math.max(0, set.reps + dir) });
+    queue.current = queue.current
+      .then(() => stepSet(getDb(), set.id, field, dir, profile.weight_increment_kg, unit))
+      .catch(() => undefined);
   };
   const commitText = async () => {
     const value = parseDecimal(text);

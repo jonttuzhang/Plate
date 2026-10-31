@@ -1,12 +1,13 @@
 import { builtinExercises } from '@/data/exercises';
 import { isBuiltin, mergeExercises, type ExerciseInfo } from '@/domain/exercises';
+import { stepWeight } from '@/domain/units';
 import { planSets } from '@/domain/progression';
 import type { Language } from '@/i18n/types';
 import { localDate } from '@/lib/dates';
 import { nowIso } from '@/lib/ids';
 
 import type { SqlDb } from './sql';
-import type { Exercise, Workout, WorkoutSet } from './types';
+import type { Exercise, UnitSystem, Workout, WorkoutSet } from './types';
 import { insertRow, softDeleteRow, updateRow } from './write';
 
 // Workout logging: reads and writes. Everything is local; sync happens elsewhere.
@@ -163,6 +164,17 @@ export async function changeWeight(db: SqlDb, set: WorkoutSet, weightKg: number)
   );
   await updateRow(db, 'workout_sets', set.id, { weight_kg: weightKg });
   for (const s of later) await updateRow(db, 'workout_sets', s.id, { weight_kg: weightKg });
+}
+
+/**
+ * One −/+ tap. Reads the set fresh from the database so rapid taps never work from a stale value
+ * (callers should also run taps one after another).
+ */
+export async function stepSet(db: SqlDb, setId: string, field: 'weight' | 'reps', steps: number, incrementKg: number, unit: UnitSystem): Promise<void> {
+  const set = await db.getFirstAsync<WorkoutSet>('SELECT * FROM workout_sets WHERE id = ?', [setId]);
+  if (!set) return;
+  if (field === 'weight') await changeWeight(db, set, stepWeight(set.weight_kg, incrementKg, steps, unit));
+  else await updateRow(db, 'workout_sets', setId, { reps: Math.max(0, set.reps + steps) });
 }
 
 export function deleteSet(db: SqlDb, id: string) {

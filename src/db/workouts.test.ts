@@ -6,7 +6,7 @@ import { createTestDb } from './testing/sqljs';
 import type { WorkoutSet } from './types';
 import {
   addExercise, addSet, changeWeight, finishWorkout, getActiveWorkout, getExercises,
-  getWorkoutSets, listWorkouts, loadWorkoutView, startWorkout, toggleSetDone, updateSet,
+  getWorkoutSets, listWorkouts, loadWorkoutView, startWorkout, stepSet, toggleSetDone, updateSet,
 } from './workouts';
 
 jest.mock('expo-crypto', () => ({ randomUUID: () => require('crypto').randomUUID() }));
@@ -99,5 +99,23 @@ describe('workout logging', () => {
     await addExercise(db, empty, bench, 2.5);
     expect(await finishWorkout(db, empty)).toBe('discarded');
     expect(await loadWorkoutView(db, empty)).toBeNull();
+  });
+});
+
+describe('rapid stepping', () => {
+  it('applies every tap when taps are queued', async () => {
+    const db = await createTestDb();
+    await migrate(db);
+    const bench = (await getExercises(db, 'en')).find((e) => e.id === builtinExercises[0]!.id)!;
+    const w = await startWorkout(db);
+    await addExercise(db, w, bench, 2.5);
+    const [first] = await getWorkoutSets(db, w);
+    let queue = Promise.resolve();
+    for (let i = 0; i < 24; i++) queue = queue.then(() => stepSet(db, first!.id, 'weight', 1, 2.5, 'metric'));
+    for (let i = 0; i < 3; i++) queue = queue.then(() => stepSet(db, first!.id, 'reps', 1, 2.5, 'metric'));
+    await queue;
+    const sets = await getWorkoutSets(db, w);
+    expect(sets[0]).toMatchObject({ weight_kg: 60, reps: 8 });
+    expect(sets.map((s) => s.weight_kg)).toEqual([60, 60, 60]); // later sets followed the first
   });
 });
