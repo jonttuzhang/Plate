@@ -70,7 +70,7 @@ npm run check        # both; run before every commit
 5. ✅ Home + training-day targets
 6. ✅ Sync engine
 7. ✅ Progression suggestion
-8. AI text food logging (Edge Function + Claude)
+8. ✅ AI text food logging (Edge Function + Claude)
 9. CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish
 
@@ -81,6 +81,15 @@ npm run check        # both; run before every commit
 - `index.ts`: triggers (sign-in, foreground, 3 s after edits, reconnect, every 60 s) + status for Settings.
   First sign-in on a new device waits up to 10 s for a pull so existing users skip onboarding.
 - Sign-out: sync (≤8 s) → stop sync → wipe local data. Ownerless local rows are wiped on sign-in.
+
+## AI food logging
+- `supabase/functions/parse-food`: signed-in users only, per-user daily quota (`consume_ai_quota`,
+  secret `AI_DAILY_LIMIT`, default 30, UTC day), Claude `claude-haiku-5-5` via `npm:@anthropic-ai/sdk`,
+  `output_config.format` JSON schema + `effort: low`. Secret `ANTHROPIC_API_KEY` lives in Supabase only.
+- `supabase/functions/_shared/food-items.ts` is the single parser/validator, used by the function AND
+  the app (`src/ai/client.ts`), tested in `src/ai/foodItems.test.ts`. Keep it import-free.
+- Developer mode (no account) uses `mockParseMealText` with placeholder values.
+- Typecheck functions: see "Edge Function typecheck" in README.
 
 ## Food
 - `foods` = the user's personal food list (anything logged/scanned/created). Fineli foods become a personal
