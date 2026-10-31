@@ -65,7 +65,7 @@ npm run check        # both; run before every commit
 ## Milestones
 1. ✅ Setup, navigation, tokens, i18n, SQLite schema, Supabase project + migrations + RLS
 2. ✅ Auth (email OTP), onboarding, sign out, delete account, data export
-3. Workout logging (offline)
+3. ✅ Workout logging (offline)
 4. Food logging: search, Fineli seed, barcode, favorites
 5. Home + training-day targets
 6. Sync engine
@@ -73,6 +73,12 @@ npm run check        # both; run before every commit
 8. AI text food logging (Edge Function + Claude)
 9. CSV import (Hevy, Strong, MyFitnessPal)
 10. Polish
+
+## Workouts
+- Built-in exercises live in `src/data/exercises.ts` with FIXED ids (never change/reuse). A row in
+  `exercises` with a built-in id is the user's override (rep range, increment); other rows are custom exercises.
+- Sets are prefilled from the last session via `planSets` (`src/domain/progression.ts`).
+- Rest timer (`src/lib/restTimer.ts`) stores an end timestamp + schedules a local notification.
 
 ## Auth
 - Email 6-digit OTP (`signInWithOtp` + `verifyOtp` type `email`). The dashboard email templates

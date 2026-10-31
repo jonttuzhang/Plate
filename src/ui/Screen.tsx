@@ -7,7 +7,7 @@ import { colors, space } from '@/theme/tokens';
 /** Full-screen container with safe-area padding at the top (modals get a little extra). */
 export function Screen({ children, modal }: { children: ReactNode; modal?: boolean }) {
   const insets = useSafeAreaInsets();
-  return <View style={[styles.screen, { paddingTop: modal ? Math.max(insets.top, space.lg) : insets.top }]}>{children}</View>;
+  return <View style={[styles.screen, { paddingTop: modal ? Math.max(insets.top, space.lg) : Math.max(insets.top, space.sm) }]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({

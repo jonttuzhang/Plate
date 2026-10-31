@@ -62,6 +62,11 @@ function Navigator() {
       <Stack.Protected guard={signedIn && onboarded}>
         <Stack.Screen name="index" />
         <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="workout/[id]" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="workout/pick" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="workout/exercise" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="history/index" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="history/[id]" />
       </Stack.Protected>
     </Stack>
   );

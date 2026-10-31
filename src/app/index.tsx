@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getDb } from '@/db/database';
 import { getDayTotals, getProfile, getWorkoutsOn } from '@/db/queries/day';
 import { useQuery } from '@/db/useQuery';
+import { getActiveWorkout, startWorkout } from '@/db/workouts';
 import { DEFAULT_TARGETS, progress, type Targets } from '@/domain/macros';
 import { useI18n } from '@/i18n';
 import { localDate, parseLocalDate } from '@/lib/dates';
@@ -23,6 +24,12 @@ export default function Home() {
   const totals = useQuery(['food_entries'], () => getDayTotals(getDb(), today), [today]);
   const workouts = useQuery(['workouts'], () => getWorkoutsOn(getDb(), today), [today]);
   const profile = useQuery(['profiles'], () => getProfile(getDb()), []);
+  const active = useQuery(['workouts'], () => getActiveWorkout(getDb()), []);
+
+  const openWorkout = async () => {
+    const id = await startWorkout(getDb());
+    router.push({ pathname: '/workout/[id]', params: { id } });
+  };
 
   const targets: Targets = profile
     ? { kcal: profile.kcal_target, protein_g: profile.protein_target_g, carbs_g: profile.carbs_target_g, fat_g: profile.fat_target_g }
@@ -90,7 +97,7 @@ export default function Home() {
 
       <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, space.lg) }]}>
         <Button label={t('home.logFood')} onPress={comingSoon} style={styles.action} />
-        <Button label={t('home.startWorkout')} variant="secondary" onPress={comingSoon} style={styles.action} />
+        <Button label={active ? t('workout.continue') : t('home.startWorkout')} variant="secondary" onPress={openWorkout} style={styles.action} />
       </View>
     </View>
   );

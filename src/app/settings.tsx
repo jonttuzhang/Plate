@@ -8,6 +8,7 @@ import { exportFoodCsv, exportJson, exportWorkoutCsv } from '@/db/export';
 import { useProfile } from '@/db/hooks';
 import { countUnsynced } from '@/db/local';
 import type { UnitSystem } from '@/db/types';
+import { exerciseNameResolver, getExercises } from '@/db/workouts';
 import { updateRow, type RowPatch } from '@/db/write';
 import { defaultIncrementKg, fromDisplayWeight, toDisplayWeight, weightUnit } from '@/domain/units';
 import { useI18n, type Language } from '@/i18n';
@@ -69,7 +70,7 @@ export default function Settings() {
     try {
       if (kind === 'json') await shareTextFile(`plate-export-${stamp}.json`, await exportJson(db), 'application/json');
       if (kind === 'food') await shareTextFile(`plate-food-${stamp}.csv`, await exportFoodCsv(db), 'text/csv');
-      if (kind === 'workouts') await shareTextFile(`plate-workouts-${stamp}.csv`, await exportWorkoutCsv(db, (id) => id), 'text/csv');
+      if (kind === 'workouts') await shareTextFile(`plate-workouts-${stamp}.csv`, await exportWorkoutCsv(db, exerciseNameResolver(await getExercises(db, lang))), 'text/csv');
     } catch {
       notify(t('common.error'), t('common.tryAgain'));
     }
@@ -171,6 +172,10 @@ export default function Settings() {
               }
               last
             />
+          </Section>
+
+          <Section title={t('settings.data')}>
+            <ListRow label={t('settings.history')} onPress={() => router.push('/history')} value={<Chevron />} last />
           </Section>
 
           <Section title={t('settings.exportData')}>
