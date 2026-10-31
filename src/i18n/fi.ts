@@ -66,6 +66,13 @@ export const fi: Translations = {
     logFood: 'Kirjaa ruoka',
     startWorkout: 'Aloita treeni',
     settings: 'Asetukset',
+    trainingDay: 'Treenipäivä +{n} kcal',
+    workoutSummary: '{exercises} liikettä · {sets} sarjaa · {min} min',
+    inProgress: 'Käynnissä',
+    previousDay: 'Edellinen päivä',
+    nextDay: 'Seuraava päivä',
+    addToMeal: 'Lisää: {meal}',
+    sameAsYesterday: 'Sama kuin eilen',
   },
   workout: {
     title: 'Treeni',

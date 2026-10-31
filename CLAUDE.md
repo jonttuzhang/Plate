@@ -67,7 +67,7 @@ npm run check        # both; run before every commit
 2. ✅ Auth (email OTP), onboarding, sign out, delete account, data export
 3. ✅ Workout logging (offline)
 4. ✅ Food logging: search, Fineli seed, barcode, favorites
-5. Home + training-day targets
+5. ✅ Home + training-day targets
 6. Sync engine
 7. Progression suggestion
 8. AI text food logging (Edge Function + Claude)

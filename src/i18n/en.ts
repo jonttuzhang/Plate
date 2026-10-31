@@ -66,6 +66,13 @@ export const en = {
     logFood: 'Log food',
     startWorkout: 'Start workout',
     settings: 'Settings',
+    trainingDay: 'Training day +{n} kcal',
+    workoutSummary: '{exercises} exercises · {sets} sets · {min} min',
+    inProgress: 'In progress',
+    previousDay: 'Previous day',
+    nextDay: 'Next day',
+    addToMeal: 'Add to {meal}',
+    sameAsYesterday: 'Same as yesterday',
   },
   workout: {
     title: 'Workout',

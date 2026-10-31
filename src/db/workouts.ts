@@ -193,16 +193,20 @@ export async function deleteWorkout(db: SqlDb, workoutId: string): Promise<void>
 
 export type WorkoutSummary = Workout & { exercises: number; sets: number; volume_kg: number };
 
+const summarySql = `
+  SELECT w.*, COUNT(DISTINCT s.exercise_id) AS exercises, COUNT(s.id) AS sets,
+         COALESCE(SUM(s.weight_kg * s.reps), 0) AS volume_kg
+  FROM workouts w LEFT JOIN workout_sets s
+    ON s.workout_id = w.id AND s.deleted_at IS NULL AND s.completed_at IS NOT NULL
+  WHERE w.deleted_at IS NULL`;
+
+/** Workouts on a calendar day, including one still in progress. A logged workout makes it a training day. */
+export function workoutsOn(db: SqlDb, date: string): Promise<WorkoutSummary[]> {
+  return db.getAllAsync<WorkoutSummary>(`${summarySql} AND w.local_date = ? GROUP BY w.id ORDER BY w.started_at`, [date]);
+}
+
 export function listWorkouts(db: SqlDb, limit = 100): Promise<WorkoutSummary[]> {
-  return db.getAllAsync<WorkoutSummary>(
-    `SELECT w.*, COUNT(DISTINCT s.exercise_id) AS exercises, COUNT(s.id) AS sets,
-            COALESCE(SUM(s.weight_kg * s.reps), 0) AS volume_kg
-     FROM workouts w LEFT JOIN workout_sets s
-       ON s.workout_id = w.id AND s.deleted_at IS NULL AND s.completed_at IS NOT NULL
-     WHERE w.deleted_at IS NULL AND w.ended_at IS NOT NULL
-     GROUP BY w.id ORDER BY w.started_at DESC LIMIT ?`,
-    [limit],
-  );
+  return db.getAllAsync<WorkoutSummary>(`${summarySql} AND w.ended_at IS NOT NULL GROUP BY w.id ORDER BY w.started_at DESC LIMIT ?`, [limit]);
 }
 
 export function exerciseNameResolver(exercises: ExerciseInfo[]): (id: string) => string {
