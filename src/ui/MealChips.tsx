@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { Meal } from '@/db/types';
 import { MEALS } from '@/domain/meals';
@@ -11,7 +11,7 @@ import { Text } from './Text';
 export function MealChips({ value, onChange }: { value: Meal; onChange: (m: Meal) => void }) {
   const { t } = useI18n();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+    <View style={styles.row}>
       {MEALS.map((m) => {
         const selected = m === value;
         return (
@@ -20,15 +20,22 @@ export function MealChips({ value, onChange }: { value: Meal; onChange: (m: Meal
             accessibilityRole="radio"
             accessibilityState={{ selected }}
             onPress={() => onChange(m)}
-            style={[styles.chip, selected && styles.selected]}
+            style={[styles.chip, styles.mealChip, selected && styles.selected]}
           >
-            <Text variant="headline" color={selected ? 'accentText' : 'textSecondary'}>
+            <Text
+              variant="headline"
+              color={selected ? 'accentText' : 'textSecondary'}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+              style={styles.mealText}
+            >
               {t(`meal.${m}`)}
             </Text>
           </Pressable>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 
@@ -43,7 +50,9 @@ export function Chip({ label, onPress, selected }: { label: string; onPress: () 
 }
 
 const styles = StyleSheet.create({
-  row: { gap: space.sm, paddingHorizontal: space.lg },
+  row: { flexDirection: 'row', gap: space.xs, paddingHorizontal: space.lg },
+  mealChip: { flex: 1, paddingHorizontal: space.xs, alignItems: 'center' },
+  mealText: { fontSize: 15 },
   chip: { minHeight: tap.min - 4, paddingHorizontal: space.lg, borderRadius: radius.pill, backgroundColor: colors.surface, justifyContent: 'center' },
   selected: { backgroundColor: colors.accent },
 });

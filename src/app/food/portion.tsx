@@ -89,7 +89,7 @@ export default function Portion() {
       : macrosFor(subject.kind === 'food' ? subject.food : subject.per100, grams);
   const serving = subject.kind === 'food' ? subject.food.serving_g : subject.kind === 'fineli' ? subject.servingG : null;
   const unitCode = subject.kind === 'entry' ? null : subject.servingUnit;
-  const unitLabel = t(`food.unit.${unitCode ?? 'serving'}` as TKey);
+  const unitLabel = (n: number) => t(`food.unit.${unitCode ?? 'serving'}` as TKey, { n });
   const isFavorite = subject.kind === 'food' && subject.food.is_favorite === 1;
 
   const set = (g: number) => {
@@ -179,7 +179,8 @@ export default function Portion() {
           <View style={styles.chips}>
             {chips.map((g) => {
               const isServing = serving !== null && (g === serving || g === serving * 2);
-              const label = isServing ? `${g === serving ? 1 : 2} ${unitLabel} · ${formatNumber(g, lang, 0)} g` : `${g} g`;
+              const count = g === serving ? 1 : 2;
+              const label = isServing ? `${count} ${unitLabel(count)} · ${formatNumber(g, lang, 0)} g` : `${g} g`;
               return <Chip key={g} label={label} selected={g === grams} onPress={() => set(g)} />;
             })}
           </View>
