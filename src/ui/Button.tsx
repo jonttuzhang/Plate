@@ -1,46 +1,37 @@
-import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable } from 'react-native';
 
-import { colors, radius, space, tap } from '@/theme/tokens';
+import { colors, radii, spacing, tap } from '@/theme/tokens';
 
 import { Text } from './Text';
 
-type Props = {
-  label: string;
+interface ButtonProps {
+  title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  /** `primary` is the big filled logging button; `plain` is a quiet text button. */
+  kind?: 'primary' | 'plain';
   disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-};
+}
 
-/** Large, thumb-friendly button for the main actions. */
-export function Button({ label, onPress, variant = 'primary', disabled, style }: Props) {
-  const primary = variant === 'primary';
+export function Button({ title, onPress, kind = 'primary', disabled }: ButtonProps) {
+  const primary = kind === 'primary';
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.base,
-        { backgroundColor: primary ? colors.accent : colors.surfaceRaised },
-        (pressed || disabled) && { opacity: disabled ? 0.4 : 0.7 },
-        style,
-      ]}
+      disabled={disabled}
+      accessibilityRole="button"
+      style={({ pressed }) => ({
+        minHeight: primary ? tap.primary : tap.min,
+        paddingHorizontal: spacing.lg,
+        borderRadius: radii.lg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: primary ? colors.accent : 'transparent',
+        opacity: disabled ? 0.4 : pressed ? 0.7 : 1,
+      })}
     >
-      <Text variant="headline" color={primary ? 'accentText' : 'text'}>
-        {label}
+      <Text variant="headline" color={primary ? 'onAccent' : 'accent'}>
+        {title}
       </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    minHeight: tap.primary,
-    borderRadius: radius.lg,
-    paddingHorizontal: space.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

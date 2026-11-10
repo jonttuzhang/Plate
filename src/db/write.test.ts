@@ -1,68 +1,76 @@
-/** @jest-environment node */
-import { getDayTotals } from './queries/day';
-import { migrate } from './migrations';
-import { createTestDb } from './testing/sqljs';
+import { subscribeToChanges } from './changes';
+import { openTestDatabase } from './testing/sqljsDriver';
 import { insertRow, softDeleteRow, updateRow } from './write';
-import type { FoodEntry } from './types';
 
-jest.mock('expo-crypto', () => ({ randomUUID: () => require('crypto').randomUUID() }));
+jest.mock('@/lib/ids', () => {
+  let n = 0;
+  return { newId: () => `id-${++n}` };
+});
 
-const entry = {
-  local_date: '2026-10-30',
-  meal: 'breakfast',
-  food_id: null,
-  name: 'Oatmeal',
-  grams: 300,
-  kcal: 210,
-  protein_g: 7.5,
-  carbs_g: 36,
-  fat_g: 4,
-  source: 'fineli',
-  logged_at: '2026-10-30T06:00:00.000Z',
-} as const;
-
-async function setup() {
-  const db = await createTestDb();
-  await migrate(db);
-  return db;
-}
+const workout = { day: '2026-11-10', started_at: '2026-11-10T16:00:00.000Z', ended_at: null, note: null };
 
 describe('write helpers', () => {
-  it('insert assigns a uuid, timestamps and marks the row dirty', async () => {
-    const db = await setup();
-    const row = await insertRow(db, 'food_entries', entry);
-    expect(row.id).toMatch(/^[0-9a-f-]{36}$/);
-    const stored = await db.getFirstAsync<FoodEntry>('SELECT * FROM food_entries WHERE id = ?', [row.id]);
-    expect(stored).toMatchObject({ ...entry, dirty: 1, deleted_at: null });
-    expect(stored!.created_at).toBe(stored!.updated_at);
+  beforeEach(() => jest.useFakeTimers({ now: new Date('2026-11-10T16:00:00.000Z') }));
+  afterEach(() => jest.useRealTimers());
+
+  it('insertRow fills id, timestamps and marks the row dirty', async () => {
+    const { db } = await openTestDatabase();
+    const row = await insertRow(db, 'workouts', workout);
+    const stored = await db.selectFrom('workouts').selectAll().executeTakeFirstOrThrow();
+    expect(stored).toEqual(row);
+    expect(stored).toMatchObject({
+      created_at: '2026-11-10T16:00:00.000Z',
+      updated_at: '2026-11-10T16:00:00.000Z',
+      deleted_at: null,
+      dirty: 1,
+    });
+    expect(stored.id).toMatch(/^id-/);
   });
 
-  it('update bumps updated_at and re-marks dirty', async () => {
-    const db = await setup();
-    const row = await insertRow(db, 'food_entries', entry);
-    await db.runAsync("UPDATE food_entries SET dirty = 0, updated_at = '2000-01-01T00:00:00.000Z'", []);
-    await updateRow(db, 'food_entries', row.id, { grams: 150 });
-    const stored = await db.getFirstAsync<FoodEntry>('SELECT * FROM food_entries WHERE id = ?', [row.id]);
-    expect(stored).toMatchObject({ grams: 150, dirty: 1 });
-    expect(stored!.updated_at > '2000-01-01T00:00:00.000Z').toBe(true);
+  it('updateRow bumps updated_at and re-marks a synced row dirty', async () => {
+    const { db } = await openTestDatabase();
+    const { id } = await insertRow(db, 'workouts', workout);
+    await db.updateTable('workouts').set({ dirty: 0 }).execute(); // as if it had been pushed
+
+    jest.setSystemTime(new Date('2026-11-10T17:00:00.000Z'));
+    await updateRow(db, 'workouts', id, { note: 'Legs' });
+
+    const stored = await db.selectFrom('workouts').selectAll().executeTakeFirstOrThrow();
+    expect(stored).toMatchObject({
+      note: 'Legs',
+      created_at: '2026-11-10T16:00:00.000Z',
+      updated_at: '2026-11-10T17:00:00.000Z',
+      dirty: 1,
+    });
   });
 
-  it('rejects unknown columns', async () => {
-    const db = await setup();
-    await expect(insertRow(db, 'food_entries', { ...entry, evil: 1 } as never)).rejects.toThrow('Unknown column');
+  it('softDeleteRow keeps the row and sets deleted_at', async () => {
+    const { db } = await openTestDatabase();
+    const { id } = await insertRow(db, 'workouts', workout);
+    await softDeleteRow(db, 'workouts', id);
+    const stored = await db.selectFrom('workouts').selectAll().executeTakeFirstOrThrow();
+    expect(stored.deleted_at).toBe('2026-11-10T16:00:00.000Z');
+    expect(stored.dirty).toBe(1);
   });
 
-  it('soft delete keeps the row for sync but hides it from day totals', async () => {
-    const db = await setup();
-    const a = await insertRow(db, 'food_entries', entry);
-    await insertRow(db, 'food_entries', { ...entry, kcal: 100, protein_g: 20 });
-    expect((await getDayTotals(db, entry.local_date)).kcal).toBe(310);
+  it('notifies listeners with the changed table', async () => {
+    const { db } = await openTestDatabase();
+    const seen: string[] = [];
+    const unsubscribe = subscribeToChanges((tables) => seen.push(...tables));
+    await insertRow(db, 'workouts', workout);
+    unsubscribe();
+    await insertRow(db, 'workouts', workout);
+    expect(seen).toEqual(['workouts']);
+  });
 
-    await softDeleteRow(db, 'food_entries', a.id);
-    const totals = await getDayTotals(db, entry.local_date);
-    expect(totals).toMatchObject({ kcal: 100, protein_g: 20, entries: 1 });
-    const deleted = await db.getFirstAsync<FoodEntry>('SELECT * FROM food_entries WHERE id = ?', [a.id]);
-    expect(deleted).toMatchObject({ dirty: 1 });
-    expect(deleted!.deleted_at).not.toBeNull();
+  it('rolls back a failed transaction', async () => {
+    const { db } = await openTestDatabase();
+    await expect(
+      db.transaction().execute(async (trx) => {
+        await insertRow(trx, 'workouts', workout);
+        throw new Error('boom');
+      }),
+    ).rejects.toThrow('boom');
+    expect(await db.selectFrom('workouts').selectAll().execute()).toEqual([]);
   });
 });

@@ -1,15 +1,12 @@
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { View, type ViewProps } from 'react-native';
 
-import { colors, radius, space } from '@/theme/tokens';
+import { colors, radii, spacing } from '@/theme/tokens';
 
 export function Card({ style, ...rest }: ViewProps) {
-  return <View {...rest} style={[styles.card, style]} />;
+  return (
+    <View
+      style={[{ backgroundColor: colors.surface, borderRadius: radii.lg, padding: spacing.lg }, style]}
+      {...rest}
+    />
+  );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: space.lg,
-  },
-});

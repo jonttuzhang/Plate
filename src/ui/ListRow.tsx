@@ -1,47 +1,49 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { colors, space, tap } from '@/theme/tokens';
+import { colors, spacing, tap } from '@/theme/tokens';
 
 import { Text } from './Text';
 
-type Props = {
-  label: string;
-  value?: ReactNode;
+interface ListRowProps {
+  title: string;
+  /** Secondary text on the right. */
+  value?: string;
+  /** Custom content on the right (e.g. a checkmark), shown after `value`. */
+  trailing?: ReactNode;
   onPress?: () => void;
-  last?: boolean;
-  danger?: boolean;
-};
+  /** Draws a hairline above the row; use on every row except the first in a card. */
+  separator?: boolean;
+}
 
-/** iOS settings-style row: label on the left, value or accessory on the right. */
-export function ListRow({ label, value, onPress, last, danger }: Props) {
+export function ListRow({ title, value, trailing, onPress, separator }: ListRowProps) {
+  const content = (
+    <View
+      style={{
+        minHeight: tap.min,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        paddingVertical: spacing.sm,
+        borderTopWidth: separator ? 1 : 0,
+        borderTopColor: colors.separator,
+      }}
+    >
+      <Text style={{ flexShrink: 0 }}>{title}</Text>
+      <Text color="textSecondary" style={{ flex: 1, textAlign: 'right' }} numberOfLines={2}>
+        {value ?? ''}
+      </Text>
+      {trailing}
+    </View>
+  );
+  if (!onPress) return content;
   return (
     <Pressable
-      accessibilityRole={onPress ? 'button' : undefined}
-      disabled={!onPress}
       onPress={onPress}
-      style={({ pressed }) => [styles.row, !last && styles.separator, pressed && { opacity: 0.6 }]}
+      accessibilityRole="button"
+      style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
     >
-      <Text style={styles.label} color={danger ? 'danger' : 'text'}>
-        {label}
-      </Text>
-      <View style={styles.value}>{typeof value === 'string' ? <Text color="textSecondary">{value}</Text> : value}</View>
+      {content}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    minHeight: tap.min,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: space.md,
-    gap: space.md,
-  },
-  separator: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.separator,
-  },
-  label: { flex: 1 },
-  value: { flexShrink: 1, alignItems: 'flex-end' },
-});

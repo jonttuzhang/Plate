@@ -1,19 +1,12 @@
-import { Text as RNText, type TextProps } from 'react-native';
+import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
-import { colors, type ColorName, type TypeVariant, type as typeScale } from '@/theme/tokens';
+import { colors, type, type Palette, type TextVariant } from '@/theme/tokens';
 
-type Props = TextProps & {
-  variant?: TypeVariant;
-  color?: ColorName;
-  /** Fixed-width digits so changing numbers don't jitter. */
-  numeric?: boolean;
-};
+export interface TextProps extends RNTextProps {
+  variant?: TextVariant;
+  color?: keyof Palette;
+}
 
-export function Text({ variant = 'body', color = 'text', numeric, style, ...rest }: Props) {
-  return (
-    <RNText
-      {...rest}
-      style={[typeScale[variant], { color: colors[color] }, numeric && { fontVariant: ['tabular-nums'] }, style]}
-    />
-  );
+export function Text({ variant = 'body', color = 'text', style, ...rest }: TextProps) {
+  return <RNText style={[type[variant], { color: colors[color] }, style]} {...rest} />;
 }
